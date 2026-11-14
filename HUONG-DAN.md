@@ -6,7 +6,7 @@ Chỉ cần `index.html` + `vk.js` (bàn phím ảo) cùng thư mục – mở t
 ```json
 { "rules": { "bida": { "rooms": { "$code": { ".read": "auth != null", ".write": "auth != null" } } } } }
 ```
-Luật: bi của bạn phải chạm cả 2 bi kia và ăn ít nhất 3 băng trước khi chạm bi thứ hai thì được 1 điểm và đánh tiếp.
+Luật: bi của bạn chỉ cần chạm cả 2 bi kia là được 1 điểm và đánh tiếp (không yêu cầu ăn băng).
 
 ## Danh sách người chơi online + lời mời (mới)
 - Tên chỉ nhập **một lần** (lưu trong trình duyệt), sau đó hiện "Xin chào, <tên>" và nút **Đổi tên**.

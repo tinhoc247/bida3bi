@@ -43,15 +43,15 @@ canvas{width:100%;display:block;margin:0 auto;touch-action:none;cursor:crosshair
 <div id="rl"><div><h2>📜 Luật bida 3 băng (3 bi)</h2>
 <p>🎯 <b>Mục tiêu:</b> ai đạt đủ số điểm trước thì thắng 🏆. Bàn <b>không có lỗ</b>, chỉ có 3 bi.</p>
 <p>⚪🟡 <b>Bi của mỗi người:</b> người thứ nhất đánh <b>bi trắng</b>, người thứ hai đánh <b>bi vàng</b>. Hai bi còn lại (bi đỏ và bi của đối thủ) là <b>bi mục tiêu</b>. Bi của người đang đến lượt có vòng sáng vàng quanh.</p>
-<p>✅ <b>Ghi 1 điểm</b> khi bi của bạn <b>chạm cả hai bi kia</b> và <b>chạm băng ít nhất 3 lần trước khi chạm bi thứ hai</b>. Bi chạm băng lúc nào cũng được (trước hoặc giữa hai lần chạm bi), miễn đủ 3 băng trước bi thứ hai.</p>
-<p>🔁 <b>Ghi điểm:</b> được đánh tiếp.<br>⏭️ <b>Không ghi điểm</b> (không chạm đủ 2 bi, hoặc chưa đủ 3 băng): mất lượt. Không có phạt nào khác.</p>
+<p>✅ <b>Ghi 1 điểm</b> khi bi của bạn <b>chạm cả hai bi kia</b>, không cần ăn băng.</p>
+<p>🔁 <b>Ghi điểm:</b> được đánh tiếp.<br>⏭️ <b>Không ghi điểm</b> (chưa chạm đủ 2 bi): mất lượt. Không có phạt nào khác.</p>
 <p>👀 <b>Đọc bảng:</b> khung <span style="color:#ffc233">viền vàng</span> = đến lượt người đó. Số lớn ở hai bên bàn là điểm. Trên đường ngắm, các số <b>1, 2, 3</b> là số băng bi sẽ chạm (chuyển vàng khi đủ 3). Đường ngắm chỉ để tham khảo vì chưa tính ma sát nên bi sẽ chậm dần.</p>
 <button onclick="rules(0)">Đã hiểu, chơi tiếp</button></div></div>
 <div id="help"><div><h2>🖱️ Cách chơi bằng chuột</h2>
 <p>1️⃣ <b>Di chuột</b> để ngắm: đường trắng là hướng bi của bạn đi, có tính cả các lần nảy băng (số 1, 2, 3). Vòng tròn là chỗ chạm bi, các đường ngắn cho thấy bi kia sẽ đi đâu.<br>
 2️⃣ <b>Giữ chuột trái và kéo lùi</b> (ra xa hướng ngắm) để lấy lực – xem thanh lực bên phải.<br>3️⃣ <b>Thả chuột</b> để đánh. Nhấn <b>Esc</b>/chuột phải để huỷ.<br>
 4️⃣ <b>Lăn con lăn</b> hoặc phím <b>← →</b> để chỉnh góc ngắm thật nhỏ.<br>(Trên điện thoại: chạm để ngắm, giữ và kéo lùi để lấy lực.)</p>
-<h3>📜 Luật nhanh</h3><p>Bi của bạn phải chạm <b>cả 2 bi kia</b> và ăn <b>3 băng</b> trước khi chạm bi thứ hai thì được 1 điểm và đánh tiếp. Không ghi điểm thì mất lượt.</p>
+<h3>📜 Luật nhanh</h3><p>Bi của bạn chỉ cần chạm <b>cả 2 bi kia</b> là được 1 điểm và đánh tiếp. Không ghi điểm thì mất lượt.</p>
 <button onclick="help(0)">Đã hiểu, chơi thôi!</button></div></div>
 <script src="vk.js"></script>
 <script>
@@ -89,14 +89,14 @@ function stepB(B,S,sil){
    if(i==S.cue||j==S.cue){const t=i==S.cue?j:i;if(!S.hit.includes(t)){S.hit.push(t);if(S.hit.length==2)S.c2=S.cus}}
    if(!sil)snd('b',-rv,0)}}}
 const moving=B=>B.some(b=>b.vx||b.vy);
-const scored=r=>r.hit.length==2&&r.c2>=3;
+const scored=r=>r.hit.length==2;
 function sim(B0,cue,vx,vy){const B=B0.map(b=>({x:b.x,y:b.y,vx:0,vy:0})),r={cue,hit:[],cus:0,c2:0};B[cue].vx=vx;B[cue].vy=vy;let n=0;do{stepB(B,r,1)}while(++n<6000&&moving(B));return r}
 function shoot(vx,vy){const c=G.turn;G.B[c].vx=vx;G.B[c].vy=vy;S={cue:c,hit:[],cus:0,c2:0};run=1;
  const k=Math.min(1,Math.sqrt(vx*vx+vy*vy)/1800);ping(1500,.07,.04+.16*k);ping(2600,.04,.01+.05*k);tick(.03+.12*k,3500);hud()}
 /* ---------- luật ---------- */
 function judge(){const p=G.turn,r=S;let m;
- if(scored(r)){G.sc[p]++;if(G.sc[p]>=G.target){G.over=1;G.win=p;clap();m=''}else m='🎯 Ăn điểm! ('+r.c2+' băng) '+names[p]+' đánh tiếp.'}
- else{const why=!r.hit.length?'Không chạm bi nào. ':r.hit.length==1?'Mới chạm 1 bi. ':'Chạm đủ 2 bi nhưng mới '+r.c2+' băng (cần 3). ';G.turn=1-p;m=why+'Đến lượt '+names[1-p]+'.'}
+ if(scored(r)){G.sc[p]++;if(G.sc[p]>=G.target){G.over=1;G.win=p;clap();m=''}else m='🎯 Ăn điểm! '+names[p]+' đánh tiếp.'}
+ else{const why=!r.hit.length?'Không chạm bi nào. ':r.hit.length==1?'Mới chạm 1 bi. ':'';G.turn=1-p;m=why+'Đến lượt '+names[1-p]+'.'}
  G.msg=m}
 function fin(){judge();hud();if(!G.over&&mode=='ai'&&G.turn==1)setTimeout(aiMove,900)}
 /* ---------- máy: thử nhiều cú đánh bằng mô phỏng ---------- */
@@ -152,7 +152,7 @@ function hud(){[0,1].forEach(p=>{const on=G.turn==p&&!G.over;
  let pips='';for(let k=0;k<G.target;k++)pips+='<i class="pip" style="background:'+(k<G.sc[p]?'#ffc233':'#fff3')+'"></i>';
  $('#s'+p).innerHTML='<small>Điểm</small><b class="sc">'+G.sc[p]+'</b><small>/ '+G.target+'</small><div class="pips">'+pips+'</div>';$('#s'+p).className='side'+(on?' on':'')});
  $('#msg').textContent=G.over?'🏆 '+names[G.win]+' thắng!':G.msg;
- $('#hint').textContent=G.over?'Bấm ⬅ Thoát để chơi lại.':G.turn!=me?'Đang chờ '+names[G.turn]+' đánh…':'Di chuột để ngắm • Giữ chuột trái + kéo lùi để lấy lực • Thả chuột để đánh\n💡 Bi của bạn là '+BN[me].toLowerCase()+' (có vòng vàng). Chạm cả 2 bi kia và ăn ít nhất 3 băng trước khi chạm bi thứ hai để ghi điểm.';fit()}
+ $('#hint').textContent=G.over?'Bấm ⬅ Thoát để chơi lại.':G.turn!=me?'Đang chờ '+names[G.turn]+' đánh…':'Di chuột để ngắm • Giữ chuột trái + kéo lùi để lấy lực • Thả chuột để đánh\n💡 Bi của bạn là '+BN[me].toLowerCase()+' (có vòng vàng). Chỉ cần chạm cả 2 bi kia là ghi điểm.';fit()}
 /* ---------- chuột ---------- */
 function pos(e){const r=cv.getBoundingClientRect();mx=(e.clientX-r.left)*1100/r.width-M;my=(e.clientY-r.top)*600/r.height-M;if(G&&!pull){const c=G.B[G.turn];ang=Math.atan2(my-c.y,mx-c.x)}}
 const myTurn=()=>G&&!run&&!G.over&&G.turn==me;

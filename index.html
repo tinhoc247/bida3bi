@@ -66,12 +66,20 @@ function tone(v,f,d,ty){if(mute)return;const a=A(),t=a.currentTime,o=a.createOsc
 function ping(f,d,g){if(mute)return;const a=A(),t=a.currentTime,o=a.createOscillator(),e=a.createGain();o.type='sine';o.frequency.setValueAtTime(f,t);e.gain.setValueAtTime(.0001,t);e.gain.linearRampToValueAtTime(g,t+.0015);e.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(e);e.connect(M0);o.start(t);o.stop(t+d+.02)}
 let NB;function tick(g,fr){if(mute)return;const a=A(),t=a.currentTime;if(!NB){NB=a.createBuffer(1,a.sampleRate*.04|0,a.sampleRate);const d=NB.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/(d.length*.12))}
  const s=a.createBufferSource(),f=a.createBiquadFilter(),e=a.createGain();s.buffer=NB;f.type='bandpass';f.frequency.value=fr;f.Q.value=1.2;e.gain.value=g;s.connect(f);f.connect(e);e.connect(M0);s.start(t)}
+/* tiếng bi va nhau: "tách" khô, gọn (nhựa phenolic): nhát click rất ngắn + vài hài vô tuyến tắt nhanh + chút "cộp" thân bi; 2 nhát cách ~3,5 ms cho ra "tách" hai bi */
+let CB;function clack(v,gain){if(mute)return;const a=A(),t=a.currentTime,k=Math.min(1,v/700),G=(gain||1)*(.35+.65*k);
+ if(!CB){CB=a.createBuffer(1,a.sampleRate*.012|0,a.sampleRate);const d=CB.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/(d.length*.14))}
+ const hit=(o,g)=>{const t0=t+o,j=1+(Math.random()-.5)*.08;
+  const n=a.createBufferSource(),f=a.createBiquadFilter(),e=a.createGain();n.buffer=CB;f.type='highpass';f.frequency.value=2400*j;e.gain.value=.9*g*G;n.connect(f);f.connect(e);e.connect(M0);n.start(t0);
+  [[2750,.16,.03],[4350,.11,.02],[6200,.06,.012],[1050,.1,.024]].forEach(p=>{const os=a.createOscillator(),eg=a.createGain(),fr=p[0]*j*(1+.06*k);os.type='sine';os.frequency.setValueAtTime(fr,t0);
+   eg.gain.setValueAtTime(.0001,t0);eg.gain.linearRampToValueAtTime(p[1]*g*G,t0+.0006);eg.gain.exponentialRampToValueAtTime(.0001,t0+p[2]);os.connect(eg);eg.connect(M0);os.start(t0);os.stop(t0+p[2]+.01)})};
+ hit(0,1);hit(.0035,.5)}
 let lc=0;
 function clap(){if(mute||Date.now()-lc<900)return;lc=Date.now();const a=A(),sr=a.sampleRate,n=sr*2.2|0,b=a.createBuffer(1,n,sr),d=b.getChannelData(0);
  for(let k=0;k<150;k++){const t=Math.random()*1.7,s=t*sr|0,len=900+Math.random()*1100|0,am=(.25+.75*Math.random())*Math.min(1,t/.35)*(1-t/2),a1=.12+Math.random()*.16;let y=0,z=0;for(let i=0;i<len&&s+i<n;i++){const x=Math.random()*2-1;y+=a1*(x-y);z+=.03*(x-z);d[s+i]+=(y-z)*Math.exp(-i/(len*.3))*Math.min(1,i/70)*am*.32}}
  const s=a.createBufferSource(),l=a.createBiquadFilter(),h=a.createBiquadFilter(),g=a.createGain(),T=a.currentTime;l.type='lowpass';l.frequency.value=2600;l.Q.value=.2;h.type='highpass';h.frequency.value=350;g.gain.setValueAtTime(0,T);g.gain.linearRampToValueAtTime(.5,T+.3);g.gain.linearRampToValueAtTime(.35,T+1.1);g.gain.linearRampToValueAtTime(0,T+2.1);s.buffer=b;s.connect(h);h.connect(l);l.connect(g);g.connect(M0);s.start()}
 let lt=0;function snd(t,v,i){const n=Date.now();if(t!='p'){if(n-lt<25)return;lt=n}
- if(t=='b'){const k=Math.min(1,v/700),j=1+Math.random()*.05;ping(2350*j,.12,.03+.2*k);ping(3900*j,.07,.012+.07*k);ping(560,.04,.03+.1*k);tick(.04+.22*k,4200)}
+ if(t=='b'){clack(v)}
  else if(t=='w'){const k=Math.min(1,v/600);ping(210,.12,.03+.16*k);ping(480,.05,.01+.05*k);tick(.02+.08*k,1500)}
  else if(i){ping(260,.22,.14);ping(170,.3,.1);clap()}else{ping(200,.25,.12);ping(130,.32,.08)}}
 
@@ -94,12 +102,12 @@ const scored=r=>r.hit.length==2;
 function sim(B0,cue,vx,vy){const B=B0.map(b=>({x:b.x,y:b.y,vx:0,vy:0})),r={cue,hit:[],cus:0,c2:0};B[cue].vx=vx;B[cue].vy=vy;let n=0;do{stepB(B,r,1)}while(++n<6000&&moving(B));return r}
 const hz=()=>G.hand?250:W-R,fr3=(x,y)=>x>=R&&x<=W-R&&y>=R&&y<=H-R&&G.B.every((b,i)=>i==G.turn||(b.x-x)**2+(b.y-y)**2>=4*R*R),okp=(x,y)=>x<=hz()&&fr3(x,y);
 function moveCue(x,y){const c=G.B[G.turn],cl=(v,a,b)=>Math.max(a,Math.min(b,v));x=cl(x,R,hz());y=cl(y,R,H-R);if(okp(x,y)){c.x=x;c.y=y}else if(okp(x,c.y))c.x=x;else if(okp(c.x,y))c.y=y;c.px=c.x;c.py=c.y}
-function shoot(vx,vy,px,py){const c=G.turn;if(px!==undefined&&py!==undefined){G.B[c].x=px;G.B[c].y=py;G.B[c].px=px;G.B[c].py=py}G.hand=0;G.B[c].vx=vx;G.B[c].vy=vy;S={cue:c,hit:[],cus:0,c2:0};run=1;
- const k=Math.min(1,Math.sqrt(vx*vx+vy*vy)/1800);ping(1500,.07,.04+.16*k);ping(2600,.04,.01+.05*k);tick(.03+.12*k,3500);hud()}
+function shoot(vx,vy,px,py){const c=G.turn;G.first[c]=0;if(px!==undefined&&py!==undefined){G.B[c].x=px;G.B[c].y=py;G.B[c].px=px;G.B[c].py=py}G.hand=0;G.B[c].vx=vx;G.B[c].vy=vy;S={cue:c,hit:[],cus:0,c2:0};run=1;
+ clack(Math.sqrt(vx*vx+vy*vy)*.45,1.1);hud()}
 /* ---------- luật ---------- */
 function judge(){const p=G.turn,r=S;let m;
  if(scored(r)){G.sc[p]++;if(G.sc[p]>=G.target){G.over=1;G.win=p;clap();m=''}else m='🎯 Ăn điểm! '+names[p]+' đánh tiếp.'}
- else{const why=!r.hit.length?'Không chạm bi nào. ':r.hit.length==1?'Mới chạm 1 bi. ':'';G.turn=1-p;m=why+'Đến lượt '+names[1-p]+'.'}
+ else{const why=!r.hit.length?'Không chạm bi nào. ':r.hit.length==1?'Mới chạm 1 bi. ':'';G.turn=1-p;if(G.first[1-p])G.hand=1;m=why+'Đến lượt '+names[1-p]+'.'}
  G.msg=m}
 function fin(){judge();hud();if(!G.over&&mode=='ai'&&G.turn==1)setTimeout(aiMove,900)}
 /* ---------- máy: thử nhiều cú đánh bằng mô phỏng ---------- */
@@ -141,7 +149,7 @@ function buildTable(){
  for(let k=0;k<id.data.length;k+=4){const v=Math.random()*255|0;id.data[k]=id.data[k+1]=id.data[k+2]=v;id.data[k+3]=Math.random()*22|0}nx.putImageData(id,0,0);T.fillStyle=T.createPattern(nc,'repeat');T.fillRect(M,M,W,H);
  for(const[x0,y0,x1,y1,rx,ry,rw,rh]of[[M,M,M,M+26,M,M,W,26],[M,M+H,M,M+H-26,M,M+H-26,W,26],[M,M,M+26,M,M,M,26,H],[M+W,M,M+W-26,M,M+W-26,M,26,H]]){
   const gg=T.createLinearGradient(x0,y0,x1,y1);gg.addColorStop(0,'rgba(0,30,60,.38)');gg.addColorStop(1,'rgba(0,30,60,0)');T.fillStyle=gg;T.fillRect(rx,ry,rw,rh)}
- T.strokeStyle='rgba(255,255,255,.3)';T.lineWidth=1.5;T.beginPath();T.moveTo(M+250,M);T.lineTo(M+250,M+H);T.stroke();
+ T.strokeStyle='rgba(255,255,255,.47)';T.lineWidth=2;T.beginPath();T.moveTo(M+250,M);T.lineTo(M+250,M+H);T.stroke();   /* vạch trắng: luôn hiện, kể cả sau cú đánh đầu */
  T.fillStyle='rgba(255,255,255,.4)';T.beginPath();T.arc(M+250,M+250,2.5,0,7);T.fill();T.beginPath();T.arc(M+750,M+250,2.5,0,7);T.fill();
  /* băng (cushion) */
  const cu=(p,a0,a1)=>{const gg=T.createLinearGradient(a0[0],a0[1],a1[0],a1[1]);gg.addColorStop(0,'#1b6f9f');gg.addColorStop(1,'#42b6e4');T.fillStyle=gg;T.beginPath();T.moveTo(p[0][0],p[0][1]);for(let k=1;k<4;k++)T.lineTo(p[k][0],p[k][1]);T.closePath();T.fill();
@@ -235,7 +243,7 @@ onresize=fit;
 function quit(){if(G&&!G.over&&!confirm("Thoát game? Ván đang chơi sẽ bị huỷ."))return;clearInterval(tmr);location.href=location.pathname}
 function rules(s){$('#rl').style.display=s?'block':'none'}
 function help(s){$('#help').style.display=s?'block':'none'}
-function start(m,tg,n0,n1){mode=m;names=[n0,n1];vis0();LP=[];G={B:mk(),turn:0,hand:1,sc:[0,0],target:tg||5,over:0,win:-1,msg:'Bắt đầu ván! '+n0+' đánh trước (bi trắng).'};started=1;applied=0;run=0;stopPres();$('#menu').style.display='none';$('#game').style.display='flex';document.body.style.overflow='hidden';hud();
+function start(m,tg,n0,n1){mode=m;names=[n0,n1];vis0();LP=[];G={B:mk(),turn:0,hand:1,first:[1,1],sc:[0,0],target:tg||5,over:0,win:-1,msg:'Bắt đầu ván! '+n0+' đánh trước (bi trắng).'};started=1;applied=0;run=0;stopPres();$('#menu').style.display='none';$('#game').style.display='flex';document.body.style.overflow='hidden';hud();
  if(!localStorage.bida3Help){localStorage.bida3Help=1;help(1)}}
 const nm=()=>($('#nm').value.trim()||'Người chơi').slice(0,14);
 function vsAI(){if(!need())return;me=0;diff=lv;start('ai',tgt,nm(),'Máy')}

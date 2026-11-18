@@ -106,7 +106,7 @@ function stepB(B,S,sil){if(!sil)for(const b of B){b.px=b.x;b.py=b.y}
  for(let i=0;i<3;i++)for(let j=i+1;j<3;j++){const a=B[i],c=B[j],dx=c.x-a.x,dy=c.y-a.y,d2=dx*dx+dy*dy;if(d2>=4*R*R||d2==0)continue;
   const d=Math.sqrt(d2),nx=dx/d,ny=dy/d,o=(2*R-d)/2;a.x-=nx*o;a.y-=ny*o;c.x+=nx*o;c.y+=ny*o;const rv=(c.vx-a.vx)*nx+(c.vy-a.vy)*ny;
   if(rv<0){const q=-.97*rv;a.vx-=q*nx;a.vy-=q*ny;c.vx+=q*nx;c.vy+=q*ny;
-   if(i==S.cue||j==S.cue){const t=i==S.cue?j:i;if(!S.hit.includes(t)){S.hit.push(t);if(S.hit.length==2)S.c2=S.cus}}
+   if(i==S.cue||j==S.cue){const t=i==S.cue?j:i;if(!S.hit.includes(t)){S.hit.push(t);if(S.hit.length==2){S.c2=S.cus;if(!sil)clap()}}}
    if(!sil)snd('b',-rv,0)}}}
 const moving=B=>B.some(b=>b.vx||b.vy);
 const scored=r=>r.hit.length==2;
@@ -117,7 +117,7 @@ function shoot(vx,vy,px,py){const c=G.turn;G.nl=1;G.first[c]=0;if(px!==undefined
  cueHit(Math.sqrt(vx*vx+vy*vy));hud()}
 /* ---------- luật ---------- */
 function judge(){const p=G.turn,r=S;let m;
- if(scored(r)){G.sc[p]++;clap();if(G.sc[p]>=G.target){G.over=1;G.win=p;m=''}else m='🎯 Ăn điểm! '+names[p]+' đánh tiếp.'}
+ if(scored(r)){G.sc[p]++;if(G.sc[p]>=G.target){G.over=1;G.win=p;m=''}else m='🎯 Ăn điểm! '+names[p]+' đánh tiếp.'}
  else{const why=!r.hit.length?'Không chạm bi nào. ':r.hit.length==1?'Mới chạm 1 bi. ':'';G.turn=1-p;if(G.first[1-p])G.hand=1;m=why+'Đến lượt '+names[1-p]+'.'}
  G.msg=m}
 function fin(){judge();hud();if(!G.over&&mode=='ai'&&G.turn==1)setTimeout(aiMove,900)}

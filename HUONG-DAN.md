@@ -39,5 +39,5 @@ Luật: bi của bạn chỉ cần chạm cả 2 bi kia là được 1 điểm v
 Tiếng bi va nhau, tiếng đánh bi, cú phá (bida 8 bi) và tiếng reo hò khi thắng dùng mẫu âm thật nhúng sẵn trong `index.html` (không cần file ngoài). Nếu trình duyệt chưa giải mã xong, game dùng âm tổng hợp như trước.
 
 ## Tiếng vỗ tay khi ghi điểm (mới)
-- Mỗi lần ghi điểm (bi chạm đủ 2 bi kia) phát **tiếng vỗ tay ~2,6 giây**, âm lượng vừa phải (mẫu nhúng sẵn trong `index.html`, khoá `cheer` của `SMP`; chỉnh to/nhỏ ở `g.gain.value=.38` trong hàm `clap()`). Ghi điểm liên tiếp thì tiếng cũ tắt nhanh rồi phát lại, không chồng to lên. Nút 🔊 tắt tiếng như cũ.
+- Ngay khi bi của bạn **chạm đủ 2 bi kia** (lúc va chạm thứ hai, không đợi bi dừng hẳn) là phát **tiếng vỗ tay ~2,6 giây**, âm lượng vừa phải (mẫu nhúng sẵn trong `index.html`, khoá `cheer` của `SMP`; chỉnh to/nhỏ ở `g.gain.value=.38` trong hàm `clap()`). Ghi điểm liên tiếp thì tiếng cũ tắt nhanh rồi phát lại, không chồng to lên. Nút 🔊 tắt tiếng như cũ.
 - Dòng **"Băng: x • Đã chạm: y/2"** đã chuyển ra **ngoài bàn** (ngay dưới bàn) để không che bi.
